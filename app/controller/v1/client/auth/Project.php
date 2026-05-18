@@ -11,6 +11,58 @@ use app\model\StoryPoint\StoryPoint;
 
 class Project
 {
+    
+    public function getProjectCityRoomList()
+    {
+        $projectId = Request::param('project_id', '');
+        $cityId = Request::param('city_id', '');
+        if ($projectId === '') return error('项目ID不能为空', 400);
+
+        $city_list = Db::name('city')
+            ->where(['project_id' => $projectId])
+            ->field(['id', 'name'])
+            ->select()
+            ->toArray();
+
+        foreach ($city_list as &$city) {
+            $room_list = Db::name('room')
+                ->where(['cityId' => $city['id']])
+                ->field([
+                    'id',
+                    'name',
+                    'imageId',
+                    'safeZoneId',
+                    'width',
+                    'height',
+                    'isSave',
+                    'isDestroy'
+                ])
+                ->order('sort', 'asc')
+                ->select()
+                ->toArray();
+
+            foreach ($room_list as &$room) {
+                $room['imageUrl'] = Db::table('image')
+                    ->where('id', (int)$room['imageId'])
+                    ->field('file')
+                    ->find()['file'];
+                $room['safeZone'] = Db::table('SafeZone')
+                    ->where('id', (int)$room['safeZoneId'])
+                    ->withoutField(['projectId', 'name', 'create_time', 'update_time'])
+                    ->find();
+                $room['isSave'] = (bool) $room['isSave'];
+                $room['isDestroy'] = (bool) $room['isDestroy'];
+                unset($room['imageId']);
+                unset($room['safeZoneId']);
+            }
+
+            $city['room_list'] = $room_list;
+        }
+        
+        return success($city_list, '资源获取成功');
+    }
+
+
     /**
      * 获取当前用户的Project列表
      * GET /api/v1/auth/GetProject
@@ -458,4 +510,6 @@ class Project
 
         return $formattedList;
     }
+
+
 }

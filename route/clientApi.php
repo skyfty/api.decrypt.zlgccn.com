@@ -18,6 +18,7 @@ Route::group('v1/client', function () {
     Route::group('/auth', function () {
         Route::get('DownloadProjectJson', 'v1.client.auth.DownloadProject/DownloadProjectJson');
         Route::get('GetProject', 'v1.client.auth.Project/GetProject');
+        Route::get('getProjectCityRoomList', 'v1.client.auth.Project/getProjectCityRoomList');
 
         Route::get('QueryProjectData', 'v1.client.auth.QueryProjectData/GetProject');
         Route::get('TestDownloadProjectJson', 'v1.client.auth.QueryProjectData/TestDownloadProjectJson');
