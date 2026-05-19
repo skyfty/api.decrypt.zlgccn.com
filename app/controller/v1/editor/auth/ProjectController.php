@@ -32,11 +32,13 @@ class ProjectController
         foreach ($project_list as &$project) {
             $city_list = Db::name('city')
                 ->where('project_id', (int)$project['id'])
-                ->field(['id', 'name'])
+                ->field(['id', 'name', 'preset_room_id', 'image_id'])
                 ->select()
                 ->toArray();
 
             foreach ($city_list as $k => $city) {
+                $cityImageInfo = Db::table('image')->where('id', (int)$city['image_id'])->field('file')->find();
+                $city['imageUrl'] = $cityImageInfo ? $cityImageInfo['file'] : null;
                 $room_list = Db::name('room')
                     ->where('cityId', (int)$city['id'])
                     ->field([

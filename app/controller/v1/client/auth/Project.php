@@ -20,7 +20,7 @@ class Project
 
         $city_list = Db::name('city')
             ->where(['project_id' => $projectId])
-            ->field(['id', 'name'])
+            ->field(['id', 'name','preset_room_id','image_id'])
             ->select()
             ->toArray();
 
@@ -92,11 +92,15 @@ class Project
 
             $city_list = Db::name('city')
                 ->where(['id' => $cityId, 'project_id' => $projectId])
-                ->field(['id', 'name'])
+                ->field(['id', 'name','preset_room_id','image_id'])
                 ->select()
                 ->toArray();
 
             foreach ($city_list as &$city) {
+                
+                $cityImageInfo = Db::table('image')->where('id', (int)$city['image_id'])->field('file')->find();
+                $city['imageUrl'] = $cityImageInfo ? $cityImageInfo['file'] : null;
+
                 if (!$isHome) {
                     if ($roomId === '') return error('房间ID不能为空', 400);
                     $room_list = Db::name('room')

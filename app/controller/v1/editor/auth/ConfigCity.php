@@ -25,7 +25,9 @@ class ConfigCity
         $id = Request::post('id/d', 0); // 转为整数，默认0表示新增
         $project_id = Request::post('project_id/d');
         $name = Request::post('name/s');
-        
+        $preset_room_id = Request::post('preset_room_id/d');
+        $image_id = Request::post('image_id/d');
+
         // 验证请求参数
         if (empty($project_id)) {
             return error('城市ID不能为空', 400);
@@ -58,6 +60,8 @@ class ConfigCity
                     ->where('id', $id)
                     ->update([
                         'name' => $name,
+                        'preset_room_id' => $preset_room_id,
+                        'image_id' => $image_id,
                         'update_time' => date('Y-m-d H:i:s'),
                     ]);
                 
@@ -70,6 +74,8 @@ class ConfigCity
                 $projectId = Db::name('city')->insertGetId([
                     'project_id' => $project_id,
                     'name' => $name,
+                    'preset_room_id' => $preset_room_id,
+                    'image_id' => $image_id,
                     'create_time' => date('Y-m-d H:i:s'),
                     'update_time' => date('Y-m-d H:i:s'),
                 ]);
