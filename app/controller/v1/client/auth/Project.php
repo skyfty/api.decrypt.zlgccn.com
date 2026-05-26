@@ -25,6 +25,9 @@ class Project
             ->toArray();
 
         foreach ($city_list as &$city) {
+            $cityImageInfo = Db::table('image')->where('id', (int)$city['image_id'])->field('file')->find();
+            $city['imageUrl'] = $cityImageInfo ? $cityImageInfo['file'] : null;
+ 
             $room_list = Db::name('room')
                 ->where(['cityId' => $city['id']])
                 ->field([
