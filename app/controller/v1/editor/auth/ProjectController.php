@@ -59,6 +59,12 @@ class ProjectController
                     ->toArray();
 
                 foreach ($room_list as $k2 => $room) {
+                    $button_point_group_list = Db::name('button_point_group')
+                        ->where('room_id', (int)$room['id'])
+                        ->order('sort', 'asc')
+                        ->select()
+                        ->toArray();
+
                     $button_point_list = Db::name('button_point')
                         ->where('room_id', (int)$room['id'])
                         ->order('sort', 'asc')
@@ -122,6 +128,7 @@ class ProjectController
                         $button_point_list[$k3]['localizationText'] = $this->loadLocalizedData($buttonPoint['id']);
                     }
                     $room_list[$k2]['button_point_list'] = $button_point_list;
+                    $room_list[$k2]['button_point_group_list'] = $button_point_group_list;
                 }
                 foreach ($room_list as $k2 => $room) {
                     $hint_point_list = Db::name('hint_point')

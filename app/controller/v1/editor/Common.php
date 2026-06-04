@@ -18,6 +18,7 @@ class Common
         'city', // 城市
         'room', // 房间
         'button_point', // 按钮组
+        'button_point_group', // 按钮分组
         'hint_point', // 提示
         'button_point_resources_image',  // ButtonPoint 私有资源
         'button_point_resources_audio', // ButtonPoint 私有资源

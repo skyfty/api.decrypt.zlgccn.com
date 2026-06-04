@@ -34,6 +34,7 @@ class ButtonPoint
 
         $data = [
             'room_id'     => (int)Request::post('room_id', 0),
+            'button_point_group_id' => Request::post('button_point_group_id', null),
             'image_id'     => Request::post('image_id'),
             'sort'        => (int)Request::post('sort', 0),
             'name'        => Request::post('name', 'newButtonPoint'),
