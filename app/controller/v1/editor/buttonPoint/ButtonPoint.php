@@ -30,11 +30,11 @@ class ButtonPoint
         $data = [];
 
         if (array_key_exists('visible', $params)) {
-            $data['visible'] = ((int) $params['visible']) === 1 ? 0 : 1;
+            $data['visible'] = (int) $params['visible'];
         }
 
-        if (array_key_exists('locked', $params) && $this->hasColumn('button_point', 'locked')) {
-            $data['locked'] = (int) $params['locked'];
+        if (array_key_exists('frozen', $params) && $this->hasColumn('button_point', 'frozen')) {
+            $data['frozen'] = (int) $params['frozen'];
         }
 
         return $data;
