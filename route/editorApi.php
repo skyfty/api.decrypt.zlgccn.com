@@ -54,6 +54,15 @@ Route::group('v1/editor/buttonPoint', function () {
     \app\middleware\AuthMiddleware::class
 ]);
 
+Route::group('v1/editor/button_point_group', function () {
+    Route::get('', 'v1.editor.buttonPointGroup.ButtonPointGroup/index');
+    Route::post('', 'v1.editor.buttonPointGroup.ButtonPointGroup/save');
+    Route::delete('', 'v1.editor.buttonPointGroup.ButtonPointGroup/delete');
+})->middleware([
+    \app\middleware\Cors::class,
+    \app\middleware\AuthMiddleware::class
+]);
+
 // storyPoint
 Route::group('v1/editor/storyPoint', function () {
     Route::get('GetStoryVariables', 'v1.editor.storyPoint.StoryVariables/GetStoryVariables');

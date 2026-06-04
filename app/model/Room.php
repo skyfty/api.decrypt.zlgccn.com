@@ -13,6 +13,11 @@ class Room extends BaseModel
         return $this->hasMany(ButtonPoint::class, 'room_id')->order('sort asc');
     }
 
+    public function buttonPointGroups()
+    {
+        return $this->hasMany(ButtonPointGroup::class, 'room_id')->order('sort', 'asc');
+    }
+
     // hintPoint关联
     public function hintPoints()
     {

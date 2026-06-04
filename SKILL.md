@@ -1,0 +1,7 @@
+- ThinkPHP 6 backend for the decrypt editor and SSO APIs.
+- Main route groups: `/sso/user/*` for login, register, refresh token, user info, and logout; `/v2/editor/*` for editor data.
+- Authentication uses JWT access_token + refresh_token, and the middleware rechecks the token against `sso_users` in the database.
+- The project resource API builds a deep `project -> city -> room -> button_point -> hint_point` payload and performs many nested DB queries.
+- CORS is configured in both `public/index.php` and `app/middleware/cors.php`; the two policies differ and should be aligned.
+- On Linux, the route reference `\app\middleware\Cors::class` should match the actual middleware class/file name case exactly.
+- Default JWT keys and database credentials have fallback values in config files; production should rely on environment variables instead of those defaults.
