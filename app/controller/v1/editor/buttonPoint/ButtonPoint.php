@@ -24,9 +24,10 @@ class ButtonPoint
 
         $buttonPointId = (int) $params['id'];
         $roomId = (int) $params['room_id'];
-        $groupId = array_key_exists('button_point_group_id', $params) && $params['button_point_group_id'] !== ''
-            ? (int) $params['button_point_group_id']
-            : null;
+        $groupValue = $params['button_point_group_id'] ?? null;
+        $groupId = ($groupValue === null || $groupValue === '' || $groupValue === 'null')
+            ? null
+            : (int) $groupValue;
 
         Db::startTrans();
         try {
