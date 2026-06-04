@@ -43,6 +43,11 @@ class ConfigRoom
             ->order('sort', 'asc')
             ->select()
             ->toArray();
+        $button_point_group_list = Db::name('button_point_group')
+            ->where('room_id', $room_id)
+            ->order('sort', 'asc')
+            ->select()
+            ->toArray();
         foreach ($button_point_list as &$buttonPoint) {
             if ($buttonPoint['sub_resource_type'] === 2) {
                 $animationActionId = $buttonPoint['animation_action'];
@@ -98,6 +103,7 @@ class ConfigRoom
         }
 
         $room_data['button_point_list'] = $button_point_list;
+        $room_data['button_point_group_list'] = $button_point_group_list;
         return success($room_data, '房间详情');
     }
 
