@@ -7,7 +7,9 @@ Route::group('v1/editor/auth', function () {
     Route::get('GetProject', 'v1.editor.auth.ProjectController/GetProject');
     Route::post('saveProject', 'v1.editor.auth.ConfigProject/saveProject');
     Route::post('saveCity', 'v1.editor.auth.ConfigCity/saveCity');
+    Route::post('cloneCity', 'v1.editor.auth.ConfigCity/cloneCity');
     Route::post('saveRoom', 'v1.editor.auth.ConfigRoom/saveRoom');
+    Route::post('cloneRoom', 'v1.editor.auth.ConfigRoom/cloneRoom');
     Route::get('/room_detail', 'v1.editor.auth.ConfigRoom/room_detail');
 })->middleware([
     \app\middleware\Cors::class,
