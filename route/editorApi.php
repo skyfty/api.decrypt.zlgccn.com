@@ -36,6 +36,7 @@ Route::group('v1/editor/sort', function () {
 // 【编辑类 - 特殊点位】
 Route::group('v1/editor/buttonPoint', function () {
     Route::post('newSaveButtonPoint', 'v1.editor.buttonPoint.ButtonPoint/newSaveButtonPoint');
+    Route::post('updateButtonPointGroup', 'v1.editor.buttonPoint.ButtonPoint/updateButtonPointGroup');
 
     // 按钮控制器
     Route::get('/detail', 'v1.editor.buttonPoint.ButtonPointController/detail');

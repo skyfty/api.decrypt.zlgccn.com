@@ -10,6 +10,65 @@ use app\model\ButtonPoint\ButtonPointLocalizationText;
 
 class ButtonPoint
 {
+    public function updateButtonPointGroup()
+    {
+        $params = request()->post();
+        $validate = Validate::rule([
+            'id' => 'require|number',
+            'room_id' => 'require|number',
+        ]);
+
+        if (! $validate->check($params)) {
+            return error($validate->getError(), 400);
+        }
+
+        $buttonPointId = (int) $params['id'];
+        $roomId = (int) $params['room_id'];
+        $groupId = array_key_exists('button_point_group_id', $params) && $params['button_point_group_id'] !== ''
+            ? (int) $params['button_point_group_id']
+            : null;
+
+        Db::startTrans();
+        try {
+            $buttonPoint = Db::table('button_point')->where('id', $buttonPointId)->find();
+            if (! $buttonPoint) {
+                return error('按钮点不存在', 404);
+            }
+
+            if ((int) $buttonPoint['room_id'] !== $roomId) {
+                return error('按钮点不属于当前房间', 400);
+            }
+
+            if ($groupId !== null) {
+                $group = Db::table('button_point_group')
+                    ->where('id', $groupId)
+                    ->where('room_id', $roomId)
+                    ->find();
+
+                if (! $group) {
+                    return error('分组不存在或不属于当前房间', 404);
+                }
+            }
+
+            Db::table('button_point')
+                ->where('id', $buttonPointId)
+                ->update([
+                    'button_point_group_id' => $groupId,
+                    'update_time' => date('Y-m-d H:i:s'),
+                ]);
+
+            Db::commit();
+
+            return success([
+                'id' => $buttonPointId,
+                'button_point_group_id' => $groupId,
+            ], $groupId === null ? '已移回根组' : '已移入分组');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('按钮点分组更新失败：' . $e->getMessage(), 500);
+        }
+    }
+
     public function newSaveButtonPoint()
     {
         $user = request()->user;
