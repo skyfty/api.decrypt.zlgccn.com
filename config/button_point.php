@@ -65,7 +65,18 @@ return [
     
     6 => ['table' => '', 'fields' => []],
 
-    7 => ['table' => '', 'fields' => []],
+    7 => [
+        'table' => 'button_point_set', 
+        'fields' => [
+            'condition_variable_source'      => ['default' => ''],
+            'condition_variable_id'      => ['default' => ''],
+            'condition_variable_operation_type'      => ['default' => '='],
+            'condition_variable_value'      => ['default' => 0.0],
+            'assign_variable_source'      => ['default' => ''],
+            'assign_variable_id'      => ['default' => ''],
+            'assign_variable_operation_type'      => ['default' => ''],
+            'assign_variable_value'      => ['default' => 0.0],
+        ]],
 
     8 => ['table' => '', 'fields' => []],
 

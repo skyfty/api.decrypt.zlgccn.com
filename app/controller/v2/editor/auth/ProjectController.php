@@ -101,6 +101,9 @@ class ProjectController
                             case 5:
                                 $table = 'button_point_nineSquarecalligraphyGrid';
                                 break;
+                            case 7:
+                                $table = 'button_point_set';
+                                break;
                             case 9:
                                 $table = 'button_point_door';
                                 break;

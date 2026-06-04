@@ -183,6 +183,7 @@ class Project
                                 3 => 'button_point_rotate',
                                 4 => 'button_point_move',
                                 5 => 'button_point_nineSquarecalligraphyGrid',
+                                7 => 'button_point_set',
                                 9 => 'button_point_door',
                                 10 => 'button_point_item',
                             ];
