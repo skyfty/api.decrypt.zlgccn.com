@@ -14,6 +14,8 @@ class ButtonPoint extends BaseModel
         'id'               => 'integer',
         'room_id'          => 'integer',
         'button_point_group_id' => 'integer',
+        'visible'           => 'integer',
+        'locked'            => 'integer',
         'resource_id'      => 'integer',
         'image_id'         => 'integer',
         'resource_type'    => 'integer',

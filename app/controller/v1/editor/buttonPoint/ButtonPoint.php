@@ -10,6 +10,36 @@ use app\model\ButtonPoint\ButtonPointLocalizationText;
 
 class ButtonPoint
 {
+    private function hasColumn(string $table, string $column): bool
+    {
+        static $cache = [];
+        $key = $table . '.' . $column;
+
+        if (array_key_exists($key, $cache)) {
+            return $cache[$key];
+        }
+
+        $exists = Db::query("SHOW COLUMNS FROM {$table} LIKE '{$column}'");
+        $cache[$key] = !empty($exists);
+
+        return $cache[$key];
+    }
+
+    private function buildStatePayload(array $params): array
+    {
+        $data = [];
+
+        if (array_key_exists('visible', $params)) {
+            $data['visible'] = ((int) $params['visible']) === 1 ? 0 : 1;
+        }
+
+        if (array_key_exists('locked', $params) && $this->hasColumn('button_point', 'locked')) {
+            $data['locked'] = (int) $params['locked'];
+        }
+
+        return $data;
+    }
+
     public function updateButtonPointGroup()
     {
         $params = request()->post();
@@ -70,6 +100,56 @@ class ButtonPoint
         }
     }
 
+    public function updateButtonPointState()
+    {
+        $params = request()->post();
+        $validate = Validate::rule([
+            'id' => 'require|number',
+            'room_id' => 'require|number',
+        ]);
+
+        if (! $validate->check($params)) {
+            return error($validate->getError(), 400);
+        }
+
+        $buttonPointId = (int) $params['id'];
+        $roomId = (int) $params['room_id'];
+        $updateData = $this->buildStatePayload($params);
+
+        if ($updateData === []) {
+            return error('没有可更新的状态', 400);
+        }
+
+        $buttonPoint = Db::table('button_point')->where('id', $buttonPointId)->find();
+        if (! $buttonPoint) {
+            return error('按钮点不存在', 404);
+        }
+
+        if ((int) $buttonPoint['room_id'] !== $roomId) {
+            return error('按钮点不属于当前房间', 400);
+        }
+
+        $updateData['update_time'] = date('Y-m-d H:i:s');
+
+        Db::startTrans();
+        try {
+            Db::table('button_point')
+                ->where('id', $buttonPointId)
+                ->update($updateData);
+
+            Db::commit();
+
+            return success([
+                'id' => $buttonPointId,
+                'visible' => (int) ($updateData['visible'] ?? ($buttonPoint['visible'] ?? 0)),
+                'locked' => (int) ($updateData['locked'] ?? ($buttonPoint['locked'] ?? 0)),
+            ], '按钮点状态已更新');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('按钮点状态更新失败：' . $e->getMessage(), 500);
+        }
+    }
+
     public function newSaveButtonPoint()
     {
         $user = request()->user;
@@ -104,7 +184,10 @@ class ButtonPoint
             'y'           => Request::post('y', 0),
             'anchors'     => Request::post('anchors', 5),
             'wxSafeArea'  => Request::post('wxSafeArea', 0),
-            'hidden'  => Request::post('hidden', 0),
+            'visible'  => array_key_exists('visible', $params)
+                ? ((int) Request::post('visible', 1))
+                : Request::post('visible', 1),
+            'locked'  => $this->hasColumn('button_point', 'locked') ? Request::post('locked', 0) : null,
             'multiLanguage' => Request::post('multiLanguage', 0),
             'status' => Request::post('status', 0),
             'resource_type' => Request::post('resource_type', 0),
@@ -123,6 +206,10 @@ class ButtonPoint
             'type'        => $type,
             'update_time' => date('Y-m-d H:i:s'),
         ];
+
+        if ($data['locked'] === null) {
+            unset($data['locked']);
+        }
 
         Db::startTrans();
         try {

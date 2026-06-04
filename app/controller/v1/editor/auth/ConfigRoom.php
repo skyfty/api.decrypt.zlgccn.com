@@ -48,7 +48,14 @@ class ConfigRoom
             ->order('sort', 'asc')
             ->select()
             ->toArray();
+        foreach ($button_point_group_list as &$group) {
+            $group['hidden'] = (int) ($group['hidden'] ?? 0);
+            $group['locked'] = (int) ($group['locked'] ?? 0);
+        }
         foreach ($button_point_list as &$buttonPoint) {
+            $buttonPoint['visible'] = (int) ($buttonPoint['visible']);
+            $buttonPoint['locked'] = (int) ($buttonPoint['locked'] ?? 0);
+
             if ($buttonPoint['sub_resource_type'] === 2) {
                 $animationActionId = $buttonPoint['animation_action'];
 
