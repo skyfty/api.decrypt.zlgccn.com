@@ -66,6 +66,12 @@ class ProjectController
                         ->order('sort', 'asc')
                         ->select()
                         ->toArray();
+                        
+                    $button_point_group_list = Db::name('button_point_group')
+                        ->where('room_id', (int)$room['id'])
+                        ->order('sort', 'asc')
+                        ->select()
+                        ->toArray();
                     foreach ($button_point_list as $k3 => $buttonPoint) {
                         // $button_point_list[$k3]['hidden'] = false;
                         if ($button_point_list[$k3]['sub_resource_type'] === 2) {
@@ -124,6 +130,8 @@ class ProjectController
                         $button_point_list[$k3]['localizationText'] = $this->loadLocalizedData($buttonPoint['id']);
                     }
                     $room_list[$k2]['button_point_list'] = $button_point_list;
+                    $room_list[$k2]['button_point_group_list'] = $button_point_group_list;
+
                 }
                 foreach ($room_list as $k2 => $room) {
                     // 创建控制器实例
