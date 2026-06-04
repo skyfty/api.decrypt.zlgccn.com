@@ -26,7 +26,7 @@ class ButtonPointController
         if (empty($buttonPoint))  return error('数据不存在.');
 
         $buttonPoint['visible'] = (int) ($buttonPoint['visible'] ?? 0);
-        $buttonPoint['locked'] = (int) ($buttonPoint['locked'] ?? 0);
+        $buttonPoint['frozen'] = (int) ($buttonPoint['frozen'] ?? 0);
 
         if ($buttonPoint['sub_resource_type'] === 2) {
             $animationActionId = $buttonPoint['animation_action'];

@@ -142,7 +142,7 @@ class ButtonPoint
             return success([
                 'id' => $buttonPointId,
                 'visible' => (int) ($updateData['visible'] ?? ($buttonPoint['visible'] ?? 0)),
-                'locked' => (int) ($updateData['locked'] ?? ($buttonPoint['locked'] ?? 0)),
+                'frozen' => (int) ($updateData['frozen'] ?? ($buttonPoint['frozen'] ?? 0)),
             ], '按钮点状态已更新');
         } catch (\Throwable $e) {
             Db::rollback();
@@ -187,7 +187,7 @@ class ButtonPoint
             'visible'  => array_key_exists('visible', $params)
                 ? ((int) Request::post('visible', 1))
                 : Request::post('visible', 1),
-            'locked'  => $this->hasColumn('button_point', 'locked') ? Request::post('locked', 0) : null,
+            'frozen'  => $this->hasColumn('button_point', 'frozen') ? Request::post('frozen', 0) : null,
             'multiLanguage' => Request::post('multiLanguage', 0),
             'status' => Request::post('status', 0),
             'resource_type' => Request::post('resource_type', 0),
@@ -207,8 +207,8 @@ class ButtonPoint
             'update_time' => date('Y-m-d H:i:s'),
         ];
 
-        if ($data['locked'] === null) {
-            unset($data['locked']);
+        if ($data['frozen'] === null) {
+            unset($data['frozen']);
         }
 
         Db::startTrans();
