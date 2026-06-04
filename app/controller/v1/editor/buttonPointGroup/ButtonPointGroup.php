@@ -3,8 +3,6 @@
 namespace app\controller\v1\editor\buttonPointGroup;
 
 use app\BaseController;
-use app\model\ButtonPoint;
-use app\model\ButtonPointGroup;
 use think\facade\Db;
 use think\facade\Validate;
 
@@ -21,7 +19,7 @@ class ButtonPointGroup extends BaseController
             return error($validate->getError(), 400);
         }
 
-        $groups = ButtonPointGroup::with(['buttonPoints'])
+        $groups = \app\model\ButtonPointGroup::with(['buttonPoints'])
             ->where('room_id', (int) $params['room_id'])
             ->order('sort', 'asc')
             ->select();
@@ -44,8 +42,8 @@ class ButtonPointGroup extends BaseController
         Db::startTrans();
         try {
             $group = !empty($params['id'])
-                ? ButtonPointGroup::find((int) $params['id'])
-                : new ButtonPointGroup();
+                ? \app\model\ButtonPointGroup::find((int) $params['id'])
+                : new \app\model\ButtonPointGroup();
 
             if (! $group) {
                 return error('分组不存在', 404);
@@ -88,8 +86,8 @@ class ButtonPointGroup extends BaseController
         Db::startTrans();
         try {
             $groupId = (int) $params['id'];
-            ButtonPoint::where('button_point_group_id', $groupId)->update(['button_point_group_id' => null]);
-            ButtonPointGroup::destroy($groupId);
+            \app\model\ButtonPoint::where('button_point_group_id', $groupId)->update(['button_point_group_id' => null]);
+            \app\model\ButtonPointGroup::destroy($groupId);
             Db::commit();
 
             return success([], '分组已删除');
