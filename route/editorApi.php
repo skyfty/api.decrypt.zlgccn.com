@@ -40,6 +40,8 @@ Route::group('v1/editor/buttonPoint', function () {
     Route::post('newSaveButtonPoint', 'v1.editor.buttonPoint.ButtonPoint/newSaveButtonPoint');
     Route::post('updateButtonPointGroup', 'v1.editor.buttonPoint.ButtonPoint/updateButtonPointGroup');
     Route::post('updateButtonPointState', 'v1.editor.buttonPoint.ButtonPoint/updateButtonPointState');
+    Route::post('cloneButtonPointGroup', 'v1.editor.buttonPoint.ButtonPoint/cloneButtonPointGroup');
+    Route::post('cloneButtonPoint', 'v1.editor.buttonPoint.ButtonPoint/cloneButtonPoint');
 
     // 按钮控制器
     Route::get('/detail', 'v1.editor.buttonPoint.ButtonPointController/detail');

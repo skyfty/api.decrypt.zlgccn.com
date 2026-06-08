@@ -10,6 +10,20 @@ use app\model\ButtonPoint\ButtonPointLocalizationText;
 
 class ButtonPoint
 {
+    private function buildCloneName(string $name): string
+    {
+        $name = trim($name);
+        if ($name === '') {
+            return '副本';
+        }
+
+        if (preg_match('/-副本$/u', $name)) {
+            return $name;
+        }
+
+        return $name . '-副本';
+    }
+
     private function hasColumn(string $table, string $column): bool
     {
         static $cache = [];
@@ -25,6 +39,165 @@ class ButtonPoint
         return $cache[$key];
     }
 
+    public function cloneButtonPointGroup()
+    {
+        $user = request()->user;
+        if (empty($user['id'])) {
+            return error('未获取到用户信息', 401);
+        }
+
+        $params = request()->post();
+        $validate = Validate::rule([
+            'id' => 'require|number',
+            'room_id' => 'require|number',
+        ]);
+
+        if (! $validate->check($params)) {
+            return error($validate->getError(), 400);
+        }
+
+        $groupId = (int) $params['id'];
+        $roomId = (int) $params['room_id'];
+        $sourceGroup = Db::name('button_point_group')
+            ->where('id', $groupId)
+            ->where('room_id', $roomId)
+            ->find();
+
+        if (empty($sourceGroup)) {
+            return error('分组不存在或不属于当前房间', 404);
+        }
+
+        $cloneName = trim((string) Request::post('name/s', ''));
+        if ($cloneName === '') {
+            $cloneName = $this->buildCloneName((string) ($sourceGroup['name'] ?? 'group'));
+        }
+
+        Db::startTrans();
+        try {
+            $newGroup = $sourceGroup;
+            unset($newGroup['id'], $newGroup['create_time'], $newGroup['update_time']);
+            $newGroup['room_id'] = $roomId;
+            $newGroup['name'] = $cloneName;
+            $newGroup['sort'] = Db::name('button_point_group')->where('room_id', $roomId)->count();
+            $newGroup['create_time'] = date('Y-m-d H:i:s');
+            $newGroup['update_time'] = date('Y-m-d H:i:s');
+
+            $newGroupId = Db::name('button_point_group')->insertGetId($newGroup);
+            if ($newGroupId <= 0) {
+                throw new \Exception('分组克隆失败');
+            }
+
+            $stats = [
+                'button_point_group' => 1,
+                'button_point' => 0,
+                'button_point_param' => 0,
+                'button_point_localizationText' => 0,
+            ];
+
+            $buttonPointList = Db::name('button_point')
+                ->where('button_point_group_id', $groupId)
+                ->order('sort', 'asc')
+                ->select()
+                ->toArray();
+
+            foreach ($buttonPointList as $buttonPoint) {
+                $newButtonPoint = $buttonPoint;
+                unset($newButtonPoint['id'], $newButtonPoint['create_time'], $newButtonPoint['update_time']);
+                $newButtonPoint['room_id'] = $roomId;
+                $newButtonPoint['button_point_group_id'] = $newGroupId;
+                $newButtonPoint['sort'] = Db::name('button_point')->where('room_id', $roomId)->count();
+                $newButtonPoint['create_time'] = date('Y-m-d H:i:s');
+                $newButtonPoint['update_time'] = date('Y-m-d H:i:s');
+
+                $newButtonPointId = Db::name('button_point')->insertGetId($newButtonPoint);
+                if ($newButtonPointId <= 0) {
+                    throw new \Exception('按钮点克隆失败');
+                }
+
+                $stats['button_point']++;
+                $stats['button_point_param'] += $this->cloneButtonPointParam((int) $buttonPoint['id'], (int) $newButtonPointId);
+                $stats['button_point_localizationText'] += $this->cloneButtonPointLocalizationText((int) $buttonPoint['id'], (int) $newButtonPointId);
+            }
+
+            Db::commit();
+
+            return success([
+                'id' => $newGroupId,
+                'button_point_group_id' => $newGroupId,
+                'stats' => $stats,
+            ], '分组克隆成功');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('分组克隆失败：' . $e->getMessage(), 500);
+        }
+    }
+
+    public function cloneButtonPoint()
+    {
+        $user = request()->user;
+        if (empty($user['id'])) {
+            return error('未获取到用户信息', 401);
+        }
+
+        $params = request()->post();
+        $validate = Validate::rule([
+            'id' => 'require|number',
+            'room_id' => 'require|number',
+        ]);
+
+        if (! $validate->check($params)) {
+            return error($validate->getError(), 400);
+        }
+
+        $buttonPointId = (int) $params['id'];
+        $roomId = (int) $params['room_id'];
+        $sourceButtonPoint = Db::name('button_point')
+            ->where('id', $buttonPointId)
+            ->where('room_id', $roomId)
+            ->find();
+
+        if (empty($sourceButtonPoint)) {
+            return error('按钮点不存在或不属于当前房间', 404);
+        }
+
+        $cloneName = trim((string) Request::post('name/s', ''));
+        if ($cloneName === '') {
+            $cloneName = $this->buildCloneName((string) ($sourceButtonPoint['name'] ?? 'buttonPoint'));
+        }
+
+        Db::startTrans();
+        try {
+            $newButtonPoint = $sourceButtonPoint;
+            unset($newButtonPoint['id'], $newButtonPoint['create_time'], $newButtonPoint['update_time']);
+            $newButtonPoint['name'] = $cloneName;
+            $newButtonPoint['sort'] = Db::name('button_point')->where('room_id', $roomId)->count();
+            $newButtonPoint['create_time'] = date('Y-m-d H:i:s');
+            $newButtonPoint['update_time'] = date('Y-m-d H:i:s');
+
+            $newButtonPointId = Db::name('button_point')->insertGetId($newButtonPoint);
+            if ($newButtonPointId <= 0) {
+                throw new \Exception('按钮点克隆失败');
+            }
+
+            $stats = [
+                'button_point' => 1,
+                'button_point_param' => $this->cloneButtonPointParam($buttonPointId, (int) $newButtonPointId),
+                'button_point_localizationText' => $this->cloneButtonPointLocalizationText($buttonPointId, (int) $newButtonPointId),
+            ];
+
+            Db::commit();
+
+            return success([
+                'id' => $newButtonPointId,
+                'button_point_id' => $newButtonPointId,
+                'stats' => $stats,
+            ], '按钮点克隆成功');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('按钮点克隆失败：' . $e->getMessage(), 500);
+        }
+    }
+
     private function buildStatePayload(array $params): array
     {
         $data = [];
@@ -38,6 +211,58 @@ class ButtonPoint
         }
 
         return $data;
+    }
+
+    private function cloneButtonPointParam(int $oldButtonPointId, int $newButtonPointId): int
+    {
+        $buttonPoint = Db::name('button_point')->where('id', $oldButtonPointId)->find();
+        if (empty($buttonPoint)) {
+            return 0;
+        }
+
+        $tableMap = [
+            1 => 'button_point_tip',
+            2 => 'button_point_draggable',
+            3 => 'button_point_rotate',
+            4 => 'button_point_move',
+            5 => 'button_point_nineSquarecalligraphyGrid',
+            7 => 'button_point_set',
+            9 => 'button_point_door',
+            10 => 'button_point_item',
+            11 => 'button_point_chapter',
+        ];
+
+        $table = $tableMap[(int) $buttonPoint['type']] ?? null;
+        if (empty($table)) {
+            return 0;
+        }
+
+        $row = Db::table($table)->where('button_point_id', $oldButtonPointId)->find();
+        if (empty($row)) {
+            return 0;
+        }
+
+        $newRow = $row;
+        unset($newRow['id'], $newRow['create_time'], $newRow['update_time']);
+        $newRow['button_point_id'] = $newButtonPointId;
+        Db::table($table)->insertGetId($newRow);
+
+        return 1;
+    }
+
+    private function cloneButtonPointLocalizationText(int $oldButtonPointId, int $newButtonPointId): int
+    {
+        $row = Db::table('button_point_localizationText')->where('button_point_id', $oldButtonPointId)->find();
+        if (empty($row)) {
+            return 0;
+        }
+
+        $newRow = $row;
+        unset($newRow['id'], $newRow['create_time'], $newRow['update_time']);
+        $newRow['button_point_id'] = $newButtonPointId;
+        Db::table('button_point_localizationText')->insertGetId($newRow);
+
+        return 1;
     }
 
     public function updateButtonPointGroup()
