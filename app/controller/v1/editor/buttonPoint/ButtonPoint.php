@@ -79,9 +79,8 @@ class ButtonPoint
             $newGroup['room_id'] = $roomId;
             $newGroup['name'] = $cloneName;
             $newGroup['sort'] = Db::name('button_point_group')->where('room_id', $roomId)->count();
-            $now = time();
-            $newGroup['create_time'] = $now;
-            $newGroup['update_time'] = $now;
+            $newGroup['create_time'] =date('Y-m-d H:i:s');
+            $newGroup['update_time'] = date('Y-m-d H:i:s');
 
             $newGroupId = Db::name('button_point_group')->insertGetId($newGroup);
             if ($newGroupId <= 0) {
