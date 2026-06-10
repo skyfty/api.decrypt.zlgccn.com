@@ -3,6 +3,7 @@
 namespace app\controller\v1\editor\buttonPointGroup;
 
 use app\BaseController;
+use app\support\ButtonPointBuilder;
 use think\facade\Db;
 use think\facade\Validate;
 
@@ -86,7 +87,26 @@ class ButtonPointGroup extends BaseController
         Db::startTrans();
         try {
             $groupId = (int) $params['id'];
-            \app\model\ButtonPoint::where('button_point_group_id', $groupId)->update(['button_point_group_id' => null]);
+            $buttonPoints = Db::name('button_point')
+                ->where('button_point_group_id', $groupId)
+                ->select()
+                ->toArray();
+
+            foreach ($buttonPoints as $buttonPoint) {
+                $buttonPointId = (int) ($buttonPoint['id'] ?? 0);
+                if ($buttonPointId <= 0) {
+                    continue;
+                }
+
+                ButtonPointBuilder::delete($buttonPointId, (int) ($buttonPoint['type'] ?? 0));
+                Db::name('button_point_localizationText')
+                    ->where('button_point_id', $buttonPointId)
+                    ->delete();
+                Db::name('button_point')
+                    ->where('id', $buttonPointId)
+                    ->delete();
+            }
+
             \app\model\ButtonPointGroup::destroy($groupId);
             Db::commit();
 
