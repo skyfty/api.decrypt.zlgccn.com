@@ -99,9 +99,7 @@ class ButtonPointGroup extends BaseController
                 }
 
                 ButtonPointBuilder::delete($buttonPointId, (int) ($buttonPoint['type'] ?? 0));
-                Db::name('button_point_localizationText')
-                    ->where('button_point_id', $buttonPointId)
-                    ->delete();
+                 \app\model\ButtonPoint\ButtonPointLocalizationText::where('button_point_id', $buttonPointId)->delete();
                 Db::name('button_point')
                     ->where('id', $buttonPointId)
                     ->delete();
