@@ -10,6 +10,48 @@ use app\model\Panel\game\PanelGame;
 
 class Game
 {
+    private function defaultLocalizationText(): array
+    {
+        return [
+            'width' => 160,
+            'height' => 40,
+            'x' => 0,
+            'y' => 0,
+            'content' => '',
+            'color' => '#ffffff',
+            'size' => 16,
+        ];
+    }
+
+    private function normalizeGameItem(array $game, int $scale): array
+    {
+        $imageId = $game['image_id'] ?? null;
+        $game['imageUrl'] = !empty($imageId)
+            ? Image::getImageUrlById($imageId, $scale)
+            : '';
+        unset($game['image_id']);
+
+        $game['localizationText'] = array_merge(
+            $this->defaultLocalizationText(),
+            (array) ($game['localizationText'] ?? [])
+        );
+
+        if ($scale != 100) {
+            $scaleRatio = $scale / 100;
+            $game['width'] = (int) ($game['width'] * $scaleRatio);
+            $game['height'] = (int) ($game['height'] * $scaleRatio);
+            $game['x'] = (int) ($game['x'] * $scaleRatio);
+            $game['y'] = (int) ($game['y'] * $scaleRatio);
+            $game['localizationText']['width'] = (int) ($game['localizationText']['width'] * $scaleRatio);
+            $game['localizationText']['height'] = (int) ($game['localizationText']['height'] * $scaleRatio);
+            $game['localizationText']['x'] = (int) ($game['localizationText']['x'] * $scaleRatio);
+            $game['localizationText']['y'] = (int) ($game['localizationText']['y'] * $scaleRatio);
+            $game['localizationText']['size'] = (int) ($game['localizationText']['size'] * $scaleRatio);
+        }
+
+        return $game;
+    }
+
     /**
      * 获取数据列表
      */
@@ -29,19 +71,12 @@ class Game
         $gameData = PanelGame::with('localizationText')
             ->where('project_id', $projectId)
             ->select();
+        $gameData = $gameData->toArray();
         foreach($gameData as &$game){
-            $game['imageUrl'] = Image::getImageUrlById($game['image_id'], $scale);
-            unset($game['image_id']);
-            if ($scale != 100) {
-                $scaleRatio = $scale / 100;
-                $game['width'] = (int) ($game['width'] * $scaleRatio);
-                $game['height'] = (int) ($game['height'] * $scaleRatio);
-                $game['x'] = (int) ($game['x'] * $scaleRatio);
-                $game['y'] = (int) ($game['y'] * $scaleRatio);
-            }
+            $game = $this->normalizeGameItem($game, $scale);
         }
 
-        return success($gameData, !$gameData || $gameData->isEmpty() ? '设置获取失败，请确认是否配置' : '设置获取成功');
+        return success($gameData, empty($gameData) ? '设置获取失败，请确认是否配置' : '设置获取成功');
     }
     /**
      * 获取指定项目的设置
@@ -67,18 +102,11 @@ class Game
         $gameData = PanelGame::with('localizationText')
             ->where('project_id', $projectId)
             ->select();
+        $gameData = $gameData->toArray();
         foreach($gameData as &$game){
-            $game['imageUrl'] = Image::getImageUrlById($game['image_id'], $scale);
-            unset($game['image_id']);
-            if ($scale != 100) {
-                $scaleRatio = $scale / 100;
-                $game['width'] = (int) ($game['width'] * $scaleRatio);
-                $game['height'] = (int) ($game['height'] * $scaleRatio);
-                $game['x'] = (int) ($game['x'] * $scaleRatio);
-                $game['y'] = (int) ($game['y'] * $scaleRatio);
-            }
+            $game = $this->normalizeGameItem($game, $scale);
         }
 
-        return success($gameData, !$gameData || $gameData->isEmpty() ? '设置获取失败，请确认是否配置' : '设置获取成功');
+        return success($gameData, empty($gameData) ? '设置获取失败，请确认是否配置' : '设置获取成功');
     }
 }

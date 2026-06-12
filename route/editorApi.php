@@ -263,6 +263,7 @@ Route::group('v1/editor', function () {
         Route::group('game', function () {
             Route::get('', 'v1.editor.panel.Game/index');
             Route::post('/save', 'v1.editor.panel.Game/save');
+            Route::delete('/delete', 'v1.editor.panel.Game/delete');
         });
 
         // 设置
