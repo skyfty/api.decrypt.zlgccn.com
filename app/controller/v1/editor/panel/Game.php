@@ -237,7 +237,6 @@ class Game
             if (! $isAttributeType) {
                 $this->assertImageExists((int) $param['project_id'], (int) $param['image_id']);
             }
-                return error('操作失败', 500);
 
             Db::startTrans();
 
@@ -267,7 +266,8 @@ class Game
      * 更新游戏数据及对应的本地化文本
      */
     private function updateGame(array $param)
-    {
+    {                return error('updateGame', 500);
+
         $game = PanelGame::find($param['id']);
         if (!$game) {
             throw new \RuntimeException('记录不存在');
