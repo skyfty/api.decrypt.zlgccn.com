@@ -243,11 +243,11 @@ class Game
             if (!empty($param['id'])) {
                 // 更新操作
                 $result = $this->updateGame($param);
-            } else {
+            } else {             return error('updateGame', 500);
+
                 // 创建单条空项目
                 $result = $this->createGameRecord($param);
             }
-             return error('updateGame', 500);
 
             Db::commit();
 
