@@ -13,6 +13,30 @@ use app\model\Panel\game\PanelGameLocalizationText;
 
 class Game
 {
+    private function findProjectDefaultImageId(int $projectId): int
+    {
+        if ($projectId <= 0) {
+            return 0;
+        }
+
+        return (int) Image::where('projectId', $projectId)->value('id');
+    }
+
+    private function assertImageExists(int $projectId, int $imageId): void
+    {
+        if ($imageId <= 0) {
+            throw new \InvalidArgumentException('图片ID不能为空');
+        }
+
+        $imageExists = Image::where('id', $imageId)
+            ->where('projectId', $projectId)
+            ->find();
+
+        if (! $imageExists) {
+            throw new \InvalidArgumentException('图片ID不存在或不属于当前项目');
+        }
+    }
+
     private function defaultLocalizationTextPayload(): array
     {
         return [
@@ -88,14 +112,21 @@ class Game
 
     private function createBootstrapGames(int $projectId)
     {
+        $defaultImageId = $this->findProjectDefaultImageId($projectId);
+        if ($defaultImageId <= 0) {
+            throw new \RuntimeException('图片资源为空，先配置图片资源');
+        }
+
         return [
             $this->createGameRecord([
                 'project_id' => $projectId,
+                'image_id' => $defaultImageId,
                 'y' => 800,
                 'type' => 'hint',
             ], true),
             $this->createGameRecord([
                 'project_id' => $projectId,
+                'image_id' => $defaultImageId,
                 'y' => 650,
                 'type' => 'pause',
             ], true),
@@ -153,6 +184,21 @@ class Game
         }
 
         try {
+            if (!empty($param['id'])) {
+                $game = PanelGame::find((int) $param['id']);
+                if (! $game) {
+                    throw new \RuntimeException('记录不存在');
+                }
+
+                if (! array_key_exists('image_id', $param) || (int) $param['image_id'] <= 0) {
+                    $param['image_id'] = (int) $game['image_id'];
+                }
+            } elseif (! array_key_exists('image_id', $param) || (int) $param['image_id'] <= 0) {
+                $param['image_id'] = $this->findProjectDefaultImageId((int) $param['project_id']);
+            }
+
+            $this->assertImageExists((int) $param['project_id'], (int) $param['image_id']);
+
             Db::startTrans();
 
             if (!empty($param['id'])) {
@@ -184,7 +230,7 @@ class Game
     {
         $game = PanelGame::find($param['id']);
         if (!$game) {
-            return error('记录不存在');
+            throw new \RuntimeException('记录不存在');
         }
 
         $param['update_time'] = date('Y-m-d H:i:s');
