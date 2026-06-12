@@ -143,7 +143,7 @@ class Game
     private function createGameRecord(array $param, bool $bootstrap = false)
     {
         $game = new PanelGame;
-        $payload = $this->filterGamePayload($this->buildGamePayload($param, $bootstrap));
+        $payload =$this->buildGamePayload($param, $bootstrap);
         $game->allowField(array_keys($payload))->save($payload);
 
         $this->createLocalizationText((int) $game->id, (array) ($param['localizationText'] ?? []));
@@ -280,7 +280,7 @@ class Game
             throw new \RuntimeException('记录不存在');
         }
         $param['update_time'] = date('Y-m-d H:i:s');
-        $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
+        $payload = $this->buildGamePayload($param, false, true);
         
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
