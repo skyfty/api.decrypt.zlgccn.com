@@ -267,9 +267,9 @@ class Game
      * 更新游戏数据及对应的本地化文本
      */
     private function updateGame($param)
-    {               throw new \RuntimeException("ppppppppppppppppppppp");
+    {               
+        $game = PanelGame::find($param['id']);throw new \RuntimeException("xxxxxxxxxxxxxxxx");
 
-        $game = PanelGame::find($param['id']);
         if (!$game) {
             throw new \RuntimeException('记录不存在');
         }
