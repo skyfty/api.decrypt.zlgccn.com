@@ -247,6 +247,7 @@ class Game
                 // 创建单条空项目
                 $result = $this->createGameRecord($param);
             }
+             return error('updateGame', 500);
 
             Db::commit();
 
@@ -266,8 +267,7 @@ class Game
      * 更新游戏数据及对应的本地化文本
      */
     private function updateGame(array $param)
-    {                return error('updateGame', 500);
-
+    {   
         $game = PanelGame::find($param['id']);
         if (!$game) {
             throw new \RuntimeException('记录不存在');
