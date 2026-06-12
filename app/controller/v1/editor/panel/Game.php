@@ -268,7 +268,7 @@ class Game
     /**
      * 更新游戏数据及对应的本地化文本
      */
-    private function updateGame(array $param)
+    private function updateGame($param)
     {   
         $game = PanelGame::find($param['id']);
         if (!$game) {
