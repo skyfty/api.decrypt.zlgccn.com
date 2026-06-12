@@ -241,7 +241,6 @@ class Game
             Db::startTrans();
 
             if (!empty($param['id'])) { 
-                    return error('rrrrrrrrrrrrrrrrrrrrrr', 500);
 
                 // 更新操作
                 $result = $this->updateGame($param);
@@ -278,6 +277,7 @@ class Game
 
         $param['update_time'] = date('Y-m-d H:i:s');
         $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
+            throw new \RuntimeException('222222222222222');
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
