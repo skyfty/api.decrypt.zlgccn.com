@@ -273,9 +273,10 @@ class Game
         if (!$game) {
             throw new \RuntimeException('记录不存在');
         }
-throw new \RuntimeException("qqqqqqqq");
         $param['update_time'] = date('Y-m-d H:i:s');
         $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
+        
+throw new \RuntimeException("bbbbbbbbbbbbbbb");
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
