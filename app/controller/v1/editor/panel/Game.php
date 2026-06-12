@@ -90,6 +90,14 @@ class Game
         return $payload;
     }
 
+    private function filterGamePayload(array $payload): array
+    {
+        $game = new PanelGame;
+        $fields = array_fill_keys($game->getFields(), true);
+
+        return array_intersect_key($payload, $fields);
+    }
+
     private function createLocalizationText(int $panelGameId, array $payload = []): void
     {
         $localizationText = new PanelGameLocalizationText;
@@ -104,7 +112,7 @@ class Game
     private function createGameRecord(array $param, bool $bootstrap = false)
     {
         $game = new PanelGame;
-        $payload = $this->buildGamePayload($param, $bootstrap);
+        $payload = $this->filterGamePayload($this->buildGamePayload($param, $bootstrap));
         $game->allowField(array_keys($payload))->save($payload);
 
         $this->createLocalizationText((int) $game->id, (array) ($param['localizationText'] ?? []));
@@ -240,7 +248,7 @@ class Game
         }
 
         $param['update_time'] = date('Y-m-d H:i:s');
-        $payload = $this->buildGamePayload($param, false, true);
+        $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
