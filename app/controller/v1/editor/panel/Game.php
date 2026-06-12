@@ -143,8 +143,10 @@ class Game
     private function createGameRecord(array $param, bool $bootstrap = false)
     {
         $game = new PanelGame;
-        $payload =$this->buildGamePayload($param, $bootstrap);
-        $game->allowField(array_keys($payload))->save($payload);
+        
+        $game->data($this->buildGamePayload($param, $bootstrap));
+        $game->save();
+
 
         $this->createLocalizationText((int) $game->id, (array) ($param['localizationText'] ?? []));
 
@@ -280,9 +282,10 @@ class Game
             throw new \RuntimeException('记录不存在');
         }
         $param['update_time'] = date('Y-m-d H:i:s');
-        $payload = $this->buildGamePayload($param, false, true);
-        
-        $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
+        // $payload = $this->buildGamePayload($param, false, true);
+        $gameSaveResult = $game->save($this->buildGamePayload($param, false, true));
+
+        // $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
             // 更新或创建对应的本地化文本
