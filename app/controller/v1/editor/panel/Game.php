@@ -268,12 +268,12 @@ class Game
      */
     private function updateGame($param)
     {               
-        $game = PanelGame::find($param['id']);throw new \RuntimeException("xxxxxxxxxxxxxxxx");
+        $game = PanelGame::find($param['id']);
 
         if (!$game) {
             throw new \RuntimeException('记录不存在');
         }
-
+throw new \RuntimeException("qqqqqqqq");
         $param['update_time'] = date('Y-m-d H:i:s');
         $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
