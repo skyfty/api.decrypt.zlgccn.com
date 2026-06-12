@@ -57,6 +57,8 @@ class Game
         $payload = [
             'project_id' => (int) ($param['project_id'] ?? 0),
             'image_id' => (int) ($param['image_id'] ?? 0),
+            'attribute_id' => (int) ($param['attribute_id'] ?? 0),
+            'attribute_name' => (string) ($param['attribute_name'] ?? ''),
             'sort' => (int) ($param['sort'] ?? 0),
             'name' => $param['name'] ?? 'newGame',
             'width' => (int) ($param['width'] ?? 200),
@@ -102,8 +104,7 @@ class Game
     private function createGameRecord(array $param, bool $bootstrap = false)
     {
         $game = new PanelGame;
-        $game->data($this->buildGamePayload($param, $bootstrap));
-        $game->save();
+        $game->allowField(true)->save($this->buildGamePayload($param, $bootstrap));
 
         $this->createLocalizationText((int) $game->id, (array) ($param['localizationText'] ?? []));
 
@@ -184,20 +185,24 @@ class Game
         }
 
         try {
+            $isAttributeType = ($param['type'] ?? '') === 'attribute';
+
             if (!empty($param['id'])) {
                 $game = PanelGame::find((int) $param['id']);
                 if (! $game) {
                     throw new \RuntimeException('记录不存在');
                 }
 
-                if (! array_key_exists('image_id', $param) || (int) $param['image_id'] <= 0) {
+                if (! $isAttributeType && (! array_key_exists('image_id', $param) || (int) $param['image_id'] <= 0)) {
                     $param['image_id'] = (int) $game['image_id'];
                 }
-            } elseif (! array_key_exists('image_id', $param) || (int) $param['image_id'] <= 0) {
+            } elseif (! $isAttributeType && (! array_key_exists('image_id', $param) || (int) $param['image_id'] <= 0)) {
                 $param['image_id'] = $this->findProjectDefaultImageId((int) $param['project_id']);
             }
 
-            $this->assertImageExists((int) $param['project_id'], (int) $param['image_id']);
+            if (! $isAttributeType) {
+                $this->assertImageExists((int) $param['project_id'], (int) $param['image_id']);
+            }
 
             Db::startTrans();
 
@@ -234,7 +239,7 @@ class Game
         }
 
         $param['update_time'] = date('Y-m-d H:i:s');
-        $gameSaveResult = $game->save($this->buildGamePayload($param, false, true));
+        $gameSaveResult = $game->allowField(true)->save($this->buildGamePayload($param, false, true));
 
         if ($gameSaveResult) {
             // 更新或创建对应的本地化文本

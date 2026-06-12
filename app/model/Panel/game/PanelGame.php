@@ -12,6 +12,8 @@ class PanelGame extends Model
 
     protected $type = [
         'id'                   => 'integer',
+        'attribute_id'         => 'integer',
+        'attribute_name'       => 'string',
     ];
 
     // 隐藏字段
