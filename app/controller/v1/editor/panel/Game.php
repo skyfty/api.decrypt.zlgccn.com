@@ -246,10 +246,8 @@ class Game
                 $result = $this->updateGame($param);
             } else {          
                 // 创建单条空项目
-                    return error('bbbbbbbbbbbbbbbbb', 500);
                 $result = $this->createGameRecord($param);
             }
-    return error('eeeeeeeeeeeeeeeeeeee', 500);
 
             Db::commit();
 
@@ -269,7 +267,7 @@ class Game
      * 更新游戏数据及对应的本地化文本
      */
     private function updateGame($param)
-    {               throw new \RuntimeException('222222222222222');
+    {               throw new \RuntimeException("ppppppppppppppppppppp");
 
         $game = PanelGame::find($param['id']);
         if (!$game) {
