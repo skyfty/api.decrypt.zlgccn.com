@@ -13,6 +13,28 @@ use app\model\Panel\game\PanelGameLocalizationText;
 
 class Game
 {
+    private function toInt($value, int $default = 0): int
+    {
+        if (is_int($value) || is_float($value)) {
+            return (int) $value;
+        }
+
+        if (is_string($value) && is_numeric($value)) {
+            return (int) $value;
+        }
+
+        return $default;
+    }
+
+    private function toString($value, string $default = ''): string
+    {
+        if (is_string($value) || is_int($value) || is_float($value) || is_bool($value)) {
+            return (string) $value;
+        }
+
+        return $default;
+    }
+
     private function findProjectDefaultImageId(int $projectId): int
     {
         if ($projectId <= 0) {
@@ -55,26 +77,26 @@ class Game
         $currentTime = date('Y-m-d H:i:s');
 
         $payload = [
-            'project_id' => (int) ($param['project_id'] ?? 0),
-            'image_id' => (int) ($param['image_id'] ?? 0),
-            'attribute_id' => (int) ($param['attribute_id'] ?? 0),
-            'attribute_name' => (string) ($param['attribute_name'] ?? ''),
-            'sort' => (int) ($param['sort'] ?? 0),
-            'name' => $param['name'] ?? 'newGame',
-            'width' => (int) ($param['width'] ?? 200),
-            'height' => (int) ($param['height'] ?? 200),
-            'x' => (int) ($param['x'] ?? 0),
-            'y' => (int) ($param['y'] ?? 0),
-            'anchors' => (int) ($param['anchors'] ?? 5),
-            'wxSafeArea' => (int) ($param['wxSafeArea'] ?? 0),
-            'visible' => array_key_exists('visible', $param) ? (int) $param['visible'] : 1,
-            'frozen' => array_key_exists('frozen', $param) ? (int) $param['frozen'] : 0,
-            'multiLanguage' => (int) ($param['multiLanguage'] ?? 0),
-            'status' => (int) ($param['status'] ?? 0),
-            'resource_type' => (int) ($param['resource_type'] ?? 0),
-            'sub_resource_type' => (int) ($param['sub_resource_type'] ?? 0),
-            'resource_id' => (int) ($param['resource_id'] ?? 0),
-            'type' => $param['type'] ?? 'hint',
+            'project_id' => $this->toInt($param['project_id'] ?? 0),
+            'image_id' => $this->toInt($param['image_id'] ?? 0),
+            'attribute_id' => $this->toInt($param['attribute_id'] ?? 0),
+            'attribute_name' => $this->toString($param['attribute_name'] ?? ''),
+            'sort' => $this->toInt($param['sort'] ?? 0),
+            'name' => $this->toString($param['name'] ?? 'newGame', 'newGame'),
+            'width' => $this->toInt($param['width'] ?? 200, 200),
+            'height' => $this->toInt($param['height'] ?? 200, 200),
+            'x' => $this->toInt($param['x'] ?? 0),
+            'y' => $this->toInt($param['y'] ?? 0),
+            'anchors' => $this->toInt($param['anchors'] ?? 5, 5),
+            'wxSafeArea' => $this->toInt($param['wxSafeArea'] ?? 0),
+            'visible' => array_key_exists('visible', $param) ? $this->toInt($param['visible'], 1) : 1,
+            'frozen' => array_key_exists('frozen', $param) ? $this->toInt($param['frozen'], 0) : 0,
+            'multiLanguage' => $this->toInt($param['multiLanguage'] ?? 0),
+            'status' => $this->toInt($param['status'] ?? 0),
+            'resource_type' => $this->toInt($param['resource_type'] ?? 0),
+            'sub_resource_type' => $this->toInt($param['sub_resource_type'] ?? 0),
+            'resource_id' => $this->toInt($param['resource_id'] ?? 0),
+            'type' => $this->toString($param['type'] ?? 'hint', 'hint'),
             'update_time' => $currentTime,
         ];
 
@@ -95,7 +117,10 @@ class Game
         $game = new PanelGame;
         $fields = array_fill_keys($game->getFields(), true);
 
-        return array_intersect_key($payload, $fields);
+        return array_filter(
+            array_intersect_key($payload, $fields),
+            static fn ($value) => is_scalar($value) || $value === null
+        );
     }
 
     private function createLocalizationText(int $panelGameId, array $payload = []): void
