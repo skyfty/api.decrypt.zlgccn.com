@@ -237,6 +237,7 @@ class Game
             if (! $isAttributeType) {
                 $this->assertImageExists((int) $param['project_id'], (int) $param['image_id']);
             }
+                return error('操作失败', 500);
 
             Db::startTrans();
 
