@@ -115,10 +115,10 @@ class Game
 
     private function filterGamePayload(array $payload): array
     {
-                throw new \RuntimeException("trrrrrrrrrrrrrrrrrrrrr");
 
         $game = new PanelGame;
         $fields = array_fill_keys($game->getFields(), true);
+                throw new \RuntimeException("言yyyyyyyyyyyyyyyy");
 
         return array_filter(
             array_intersect_key($payload, $fields),
