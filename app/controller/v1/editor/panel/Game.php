@@ -72,8 +72,10 @@ class Game
         ];
     }
 
-    private function buildGamePayload(array $param, bool $bootstrap = false, bool $isUpdate = false): array
+    private function buildGamePayload($param, bool $bootstrap = false, bool $isUpdate = false): array
     {
+        throw new \RuntimeException("ttttttttttttttttttttt");
+
         $currentTime = date('Y-m-d H:i:s');
 
         $payload = [
@@ -276,7 +278,6 @@ class Game
         $param['update_time'] = date('Y-m-d H:i:s');
         $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
         
-throw new \RuntimeException("bbbbbbbbbbbbbbb");
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
