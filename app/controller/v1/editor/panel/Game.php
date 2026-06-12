@@ -118,10 +118,8 @@ class Game
 
         $game = new PanelGame;
         $gameFields = $game->getFields();
-                                throw new \RuntimeException("bbbbbbbbbbbbb".$gameFields);
 
         $fields = array_fill_keys($gameFields, true);
-                throw new \RuntimeException("言yyyyyyyyyyyyyyyy");
 
         return array_filter(
             array_intersect_key($payload, $fields),
