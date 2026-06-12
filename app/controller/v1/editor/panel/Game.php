@@ -118,7 +118,7 @@ class Game
 
         $game = new PanelGame;
         $gameFields = $game->getFields();
-                                throw new \RuntimeException("bbbbbbbbbbbbb");
+                                throw new \RuntimeException("bbbbbbbbbbbbb".$gameFields);
 
         $fields = array_fill_keys($gameFields, true);
                 throw new \RuntimeException("言yyyyyyyyyyyyyyyy");
