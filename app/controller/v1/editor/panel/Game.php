@@ -240,14 +240,15 @@ class Game
 
             Db::startTrans();
 
-            if (!empty($param['id'])) {
+            if (!empty($param['id'])) {    return error('222222222222222222', 500);
+
                 // 更新操作
                 $result = $this->updateGame($param);
-            } else {             return error('updateGame', 500);
-
+            } else {          return error('33333333333333333333333', 500);
                 // 创建单条空项目
                 $result = $this->createGameRecord($param);
             }
+    return error('22222222222', 500);
 
             Db::commit();
 
