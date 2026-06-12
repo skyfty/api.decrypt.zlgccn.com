@@ -248,9 +248,9 @@ class Game
                 // 创建单条空项目
                 $result = $this->createGameRecord($param);
             }
-    return error('22222222222', 500);
 
             Db::commit();
+    return error('22222222222', 500);
 
             if ($result) {
                 $message = !empty($param['id']) ? '更新成功' : '创建成功';
