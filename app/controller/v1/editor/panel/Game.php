@@ -274,7 +274,7 @@ class Game
 
         $param['update_time'] = date('Y-m-d H:i:s');
         $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
-        $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
+        $gameSaveResult = $game->save($payload);
 
         if ($gameSaveResult) {
             // 更新或创建对应的本地化文本
