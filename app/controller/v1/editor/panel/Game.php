@@ -241,10 +241,13 @@ class Game
             Db::startTrans();
 
             if (!empty($param['id'])) { 
+                    return error('rrrrrrrrrrrrrrrrrrrrrr', 500);
+
                 // 更新操作
                 $result = $this->updateGame($param);
             } else {          
                 // 创建单条空项目
+                    return error('bbbbbbbbbbbbbbbbb', 500);
                 $result = $this->createGameRecord($param);
             }
     return error('eeeeeeeeeeeeeeeeeeee', 500);
