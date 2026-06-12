@@ -269,7 +269,8 @@ class Game
      * 更新游戏数据及对应的本地化文本
      */
     private function updateGame($param)
-    {   
+    {               throw new \RuntimeException('222222222222222');
+
         $game = PanelGame::find($param['id']);
         if (!$game) {
             throw new \RuntimeException('记录不存在');
@@ -277,7 +278,6 @@ class Game
 
         $param['update_time'] = date('Y-m-d H:i:s');
         $payload = $this->filterGamePayload($this->buildGamePayload($param, false, true));
-            throw new \RuntimeException('222222222222222');
         $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
