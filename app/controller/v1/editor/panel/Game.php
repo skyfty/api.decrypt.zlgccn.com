@@ -74,7 +74,6 @@ class Game
 
     private function buildGamePayload($param, bool $bootstrap = false, bool $isUpdate = false): array
     {
-        throw new \RuntimeException("ttttttttttttttttttttt");
 
         $currentTime = date('Y-m-d H:i:s');
 
@@ -116,6 +115,8 @@ class Game
 
     private function filterGamePayload(array $payload): array
     {
+                throw new \RuntimeException("trrrrrrrrrrrrrrrrrrrrr");
+
         $game = new PanelGame;
         $fields = array_fill_keys($game->getFields(), true);
 
