@@ -104,7 +104,8 @@ class Game
     private function createGameRecord(array $param, bool $bootstrap = false)
     {
         $game = new PanelGame;
-        $game->allowField(true)->save($this->buildGamePayload($param, $bootstrap));
+        $payload = $this->buildGamePayload($param, $bootstrap);
+        $game->allowField(array_keys($payload))->save($payload);
 
         $this->createLocalizationText((int) $game->id, (array) ($param['localizationText'] ?? []));
 
@@ -239,7 +240,8 @@ class Game
         }
 
         $param['update_time'] = date('Y-m-d H:i:s');
-        $gameSaveResult = $game->allowField(true)->save($this->buildGamePayload($param, false, true));
+        $payload = $this->buildGamePayload($param, false, true);
+        $gameSaveResult = $game->allowField(array_keys($payload))->save($payload);
 
         if ($gameSaveResult) {
             // 更新或创建对应的本地化文本
