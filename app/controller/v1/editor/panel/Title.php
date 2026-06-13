@@ -221,6 +221,30 @@ class Title
         if ($id === 0) {
             $row['create_time'] = date('Y-m-d H:i:s');
             $affected = Db::table($table)->insertGetId($row);
+
+            Db::table('panel_title_localizationText')->insert([
+                'panel_title_item_id' => $affected,
+                'content' => $row['content'],
+                'color' => $row['color'],
+                'size' => $row['size'],
+                'x' => 0,
+                'y' => 0,
+                'create_time' => date('Y-m-d H:i:s'),
+                'update_time' => date('Y-m-d H:i:s'),
+            ]);
+
+            if ((int) $row['button_type'] === 1) {
+                Db::table('panel_title_start')->insert([
+                    'panel_title_item_id' => $affected,
+                    'city_id' => null,
+                    'room_id' => null,
+                    'success_audio' => null,
+                    'error_audio' => null,
+                    'create_time' => date('Y-m-d H:i:s'),
+                    'update_time' => date('Y-m-d H:i:s'),
+                ]);
+            }
+
             return success($row, '标题项创建成功');
         } else {
             // ✅ 更新
@@ -230,6 +254,38 @@ class Title
             } else {
                 return success($row, '标题项更新成功');
             }
+        }
+    }
+
+    public function DeleteTitleItem()
+    {
+        $id = (int) Request::param('id', 0);
+        $titleId = (int) Request::param('panel_title_id', 0);
+
+        if ($id <= 0 || $titleId <= 0) {
+            return error('标题项ID和标题ID不能为空', 400);
+        }
+
+        $item = Db::table('panel_title_item')->where('id', $id)->find();
+        if (!$item) {
+            return error('标题项不存在', 404);
+        }
+
+        if ((int) $item['panel_title_id'] !== $titleId) {
+            return error('标题项不属于当前标题', 400);
+        }
+
+        Db::startTrans();
+        try {
+            Db::table('panel_title_localizationText')->where('panel_title_item_id', $id)->delete();
+            Db::table('panel_title_start')->where('panel_title_item_id', $id)->delete();
+            Db::table('panel_title_item')->where('id', $id)->delete();
+            Db::commit();
+
+            return success(['id' => $id], '标题项删除成功');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('标题项删除失败：' . $e->getMessage(), 500);
         }
     }
 }

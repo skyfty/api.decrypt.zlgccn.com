@@ -135,10 +135,14 @@ class Chapter
         // 第一条记录：type为hint
         $Chapter1 = new PanelChapter;
         $Chapter1->project_id = $param['project_id'];
+        $Chapter1->width = $param['width'] ?? 250;
+        $Chapter1->height = $param['height'] ?? 60;
+        $Chapter1->x = $param['x'] ?? 0;
+        $Chapter1->y = $param['y'] ?? 0;
         $Chapter1->save();
 
         // 创建对应的本地化文本
-        $this->createLocalizationText($Chapter1->id);
+        $this->createLocalizationText($Chapter1->id, $param['localizationText'] ?? []);
         $Chapters[] = $Chapter1;
 
         // 返回创建的游戏数组
@@ -148,13 +152,52 @@ class Chapter
     /**
      * 创建本地化文本记录
      */
-    private function createLocalizationText(int $panelChapterId)
+    private function createLocalizationText(int $panelChapterId, array $payload = [])
     {
         $localizationText = new PanelChapterLocalizationText;
         $localizationText->panel_chapter_id = $panelChapterId;
+        $localizationText->width = $payload['width'] ?? 160;
+        $localizationText->height = $payload['height'] ?? 40;
+        $localizationText->x = $payload['x'] ?? 0;
+        $localizationText->y = $payload['y'] ?? 0;
+        $localizationText->content = $payload['content'] ?? '';
+        $localizationText->color = $payload['color'] ?? '#ffffff';
+        $localizationText->size = $payload['size'] ?? 16;
         $localizationText->save();
 
         return $localizationText;
+    }
+
+    public function delete()
+    {
+        $params = Request::param();
+        $id = (int) ($params['id'] ?? 0);
+        $projectId = (int) ($params['project_id'] ?? 0);
+
+        if ($id <= 0 || $projectId <= 0) {
+            return error('章节ID和项目ID不能为空', 400);
+        }
+
+        $chapter = PanelChapter::find($id);
+        if (!$chapter) {
+            return error('记录不存在', 404);
+        }
+
+        if ((int) $chapter['project_id'] !== $projectId) {
+            return error('记录不属于当前项目', 400);
+        }
+
+        Db::startTrans();
+        try {
+            PanelChapterLocalizationText::where('panel_chapter_id', $id)->delete();
+            PanelChapter::destroy($id);
+            Db::commit();
+
+            return success(['id' => $id], '删除成功');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('删除失败：' . $e->getMessage(), 500);
+        }
     }
 
 }

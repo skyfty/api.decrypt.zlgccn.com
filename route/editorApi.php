@@ -245,6 +245,8 @@ Route::group('v1/editor', function () {
         // 标题
         Route::get('GetTitle', 'v1.editor.panel.Title/GetTitle');
         Route::post('updateTitle', 'v1.editor.panel.Title/updateTitle');
+        Route::post('UploadTitleItem', 'v1.editor.panel.Title/UploadTitleItem');
+        Route::delete('DeleteTitleItem', 'v1.editor.panel.Title/DeleteTitleItem');
 
         // 更新
         Route::get('/UpdatePanel', 'v1.editor.panel.Update/index');
@@ -300,6 +302,7 @@ Route::group('v1/editor', function () {
     Route::group('panel_chapter', function () {
         Route::get('', 'v1.editor.panel.Chapter/index');
         Route::post('/save', 'v1.editor.panel.Chapter/save');
+        Route::delete('/delete', 'v1.editor.panel.Chapter/delete');
     });
 })->middleware([
     \app\middleware\Cors::class,

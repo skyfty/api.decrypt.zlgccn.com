@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace app\controller\v1\editor\panel;
 
+use think\facade\Db;
 use app\model\Image;
 use think\facade\Validate;
 use app\model\Panel\loading\PanelLoading;
@@ -54,18 +55,55 @@ class Loading
 
         $params = request()->post();
         $findLoadingData = PanelLoading::find($params['id']);
-
-        $LoadingState = $findLoadingData->save($params);
-        if ($LoadingState) {
-            foreach ($params['PanelLoadingItems'] as &$PanelLoadingItem) {
-
-                $findLoadingItemData = PanelLoadingItem::find($PanelLoadingItem['id']);
-
-                $LoadingItemState = $findLoadingItemData->save($PanelLoadingItem);
-                $LoadingState = $LoadingItemState;
-            }
+        if (!$findLoadingData) {
+            return error('记录不存在');
         }
-        if ($LoadingState) return success($LoadingState, '更新成功.');
-        return error('更新失败.');
+
+        $items = $params['PanelLoadingItems'] ?? [];
+        unset($params['PanelLoadingItems']);
+
+        Db::startTrans();
+        try {
+            $loadingState = $findLoadingData->save($params);
+            if ($loadingState !== false) {
+                $keepIds = [];
+
+                foreach ($items as $panelLoadingItem) {
+                    $panelLoadingItem['panel_loading_id'] = $findLoadingData->id;
+                    $panelLoadingItem['update_time'] = date('Y-m-d H:i:s');
+
+                    if (!empty($panelLoadingItem['id'])) {
+                        $keepIds[] = (int) $panelLoadingItem['id'];
+                        $findLoadingItemData = PanelLoadingItem::find($panelLoadingItem['id']);
+                        if ($findLoadingItemData) {
+                            $findLoadingItemData->save($panelLoadingItem);
+                        }
+                    } else {
+                        $panelLoadingItem['create_time'] = date('Y-m-d H:i:s');
+                        $newItem = new PanelLoadingItem();
+                        $newItem->data($panelLoadingItem);
+                        $newItem->save();
+                        $keepIds[] = (int) $newItem->id;
+                    }
+                }
+
+                if (!empty($keepIds)) {
+                    PanelLoadingItem::where('panel_loading_id', $findLoadingData->id)
+                        ->whereNotIn('id', $keepIds)
+                        ->delete();
+                } else {
+                    PanelLoadingItem::where('panel_loading_id', $findLoadingData->id)->delete();
+                }
+
+                Db::commit();
+                return success(true, '更新成功.');
+            }
+
+            Db::rollback();
+            return error('更新失败.');
+        } catch (\Throwable $e) {
+            Db::rollback();
+            return error('更新失败：' . $e->getMessage());
+        }
     }
 }
