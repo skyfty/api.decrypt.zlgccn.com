@@ -31,6 +31,11 @@ class Game
             : '';
         unset($game['image_id']);
 
+        $attributeImageId = $game['attribute_image_id'] ?? null;
+        $game['attributeImageUrl'] = ($game['attribute_display_type'] ?? '') === 'image' && !empty($attributeImageId)
+            ? Image::getImageUrlById($attributeImageId, $scale)
+            : '';
+
         $game['localizationText'] = array_merge(
             $this->defaultLocalizationText(),
             (array) ($game['localizationText'] ?? [])

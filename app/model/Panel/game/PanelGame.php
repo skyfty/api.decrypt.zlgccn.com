@@ -14,6 +14,8 @@ class PanelGame extends Model
         'id'                   => 'integer',
         'attribute_id'         => 'integer',
         'attribute_name'       => 'string',
+        'attribute_display_type' => 'string',
+        'attribute_image_id'   => 'integer',
     ];
 
     // 隐藏字段

@@ -72,6 +72,14 @@ class Game
         ];
     }
 
+    private function defaultAttributePayload(): array
+    {
+        return [
+            'attribute_display_type' => 'text',
+            'attribute_image_id' => 0,
+        ];
+    }
+
     private function buildGamePayload($param, bool $bootstrap = false, bool $isUpdate = false): array
     {
 
@@ -97,9 +105,13 @@ class Game
             'resource_type' => $this->toInt($param['resource_type'] ?? 0),
             'sub_resource_type' => $this->toInt($param['sub_resource_type'] ?? 0),
             'resource_id' => $this->toInt($param['resource_id'] ?? 0),
+            'attribute_display_type' => $this->toString($param['attribute_display_type'] ?? 'text', 'text'),
+            'attribute_image_id' => $this->toInt($param['attribute_image_id'] ?? 0),
             'type' => $this->toString($param['type'] ?? 'hint', 'hint'),
             'update_time' => $currentTime,
         ];
+
+        $payload = array_merge($this->defaultAttributePayload(), $payload);
 
         if (! $isUpdate) {
             $payload['create_time'] = $currentTime;
@@ -226,6 +238,20 @@ class Game
 
         try {
             $isAttributeType = ($param['type'] ?? '') === 'attribute';
+
+            if ($isAttributeType) {
+                $param['attribute_display_type'] = $this->toString($param['attribute_display_type'] ?? 'text', 'text');
+                if ($param['attribute_display_type'] === 'image') {
+                    $attributeImageId = $this->toInt($param['attribute_image_id'] ?? 0);
+                    $this->assertImageExists((int) $param['project_id'], $attributeImageId);
+                    $param['attribute_image_id'] = $attributeImageId;
+                } else {
+                    $param['attribute_image_id'] = $this->toInt($param['attribute_image_id'] ?? 0);
+                }
+            } else {
+                $param['attribute_display_type'] = $this->toString($param['attribute_display_type'] ?? 'text', 'text');
+                $param['attribute_image_id'] = $this->toInt($param['attribute_image_id'] ?? 0);
+            }
 
             if (!empty($param['id'])) {
                 $game = PanelGame::find((int) $param['id']);
