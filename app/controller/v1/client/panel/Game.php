@@ -138,6 +138,7 @@ class Game
             $game = $this->normalizeGameItem($game, $scale);
         }
         unset($game);
+        return $gameData;
 
         return $this->reorderByGroupBase($gameData);
     }
