@@ -29,6 +29,7 @@ Route::group('v1/editor/sort', function () {
     Route::post('updateRoomSort', 'v1.editor.sort.RoomSort/updateRoomSort');
     Route::post('updateButtonPointSort', 'v1.editor.sort.ButtonPointSort/updateButtonPointSort');
     Route::post('updateButtonPointGroupSort', 'v1.editor.sort.ButtonPointGroupSort/updateButtonPointGroupSort');
+    Route::post('updateTopLevelEntrySort', 'v1.editor.sort.TopLevelEntrySort/updateTopLevelEntrySort');
     Route::post('updateHintPointSort', 'v1.editor.sort.HintPointSort/updateHintPointSort');
     Route::post('updateAnimationFrameSort', 'v1.editor.sort.AnimationFrameSort/updateAnimationFrameSort');
 })->middleware([
