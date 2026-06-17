@@ -11,8 +11,6 @@ use app\model\Panel\game\PanelGame;
 
 class Game
 {
-    private const GROUP_SORT_BASE = 100000;
-
     private function defaultLocalizationText(): array
     {
         return [
@@ -99,28 +97,60 @@ class Game
         foreach ($items as &$item) {
             $groupId = isset($item['button_point_group_id']) ? (int) $item['button_point_group_id'] : 0;
             $itemSort = (int) ($item['sort'] ?? 0);
+            $itemId = (int) ($item['id'] ?? 0);
 
             if ($groupId > 0) {
                 $groupSort = isset($groupSortMap[$groupId]) ? (int) $groupSortMap[$groupId] : 0;
-                $item['_effective_sort'] = $groupSort * self::GROUP_SORT_BASE + $itemSort;
+                $item['_major_sort'] = $groupSort;
+                $item['_type_order'] = 1;
+                $item['_group_id'] = $groupId;
+                $item['_minor_sort'] = $itemSort;
+                $item['_id_sort'] = $itemId;
             } else {
-                $item['_effective_sort'] = $itemSort;
+                $item['_major_sort'] = $itemSort;
+                $item['_type_order'] = 0;
+                $item['_group_id'] = 0;
+                $item['_minor_sort'] = 0;
+                $item['_id_sort'] = $itemId;
             }
         }
         unset($item);
 
         usort($items, static function (array $left, array $right): int {
-            $leftSort = (int) ($left['_effective_sort'] ?? 0);
-            $rightSort = (int) ($right['_effective_sort'] ?? 0);
-            if ($leftSort !== $rightSort) {
-                return $leftSort <=> $rightSort;
+            $leftMajor = (int) ($left['_major_sort'] ?? 0);
+            $rightMajor = (int) ($right['_major_sort'] ?? 0);
+            if ($leftMajor !== $rightMajor) {
+                return $leftMajor <=> $rightMajor;
             }
-            return (int) ($left['id'] ?? 0) <=> (int) ($right['id'] ?? 0);
+
+            $leftType = (int) ($left['_type_order'] ?? 0);
+            $rightType = (int) ($right['_type_order'] ?? 0);
+            if ($leftType !== $rightType) {
+                return $leftType <=> $rightType;
+            }
+
+            $leftGroup = (int) ($left['_group_id'] ?? 0);
+            $rightGroup = (int) ($right['_group_id'] ?? 0);
+            if ($leftGroup !== $rightGroup) {
+                return $leftGroup <=> $rightGroup;
+            }
+
+            $leftMinor = (int) ($left['_minor_sort'] ?? 0);
+            $rightMinor = (int) ($right['_minor_sort'] ?? 0);
+            if ($leftMinor !== $rightMinor) {
+                return $leftMinor <=> $rightMinor;
+            }
+
+            return (int) ($left['_id_sort'] ?? 0) <=> (int) ($right['_id_sort'] ?? 0);
         });
 
         foreach ($items as $index => &$item) {
             $item['sort'] = $index;
-            unset($item['_effective_sort']);
+            unset($item['_major_sort']);
+            unset($item['_type_order']);
+            unset($item['_group_id']);
+            unset($item['_minor_sort']);
+            unset($item['_id_sort']);
         }
         unset($item);
 
