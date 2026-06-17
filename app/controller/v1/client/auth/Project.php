@@ -11,6 +11,75 @@ use app\model\StoryPoint\StoryPoint;
 
 class Project
 {
+    private const GROUP_SORT_BASE = 100000;
+
+    private function reorderButtonPointListByGroupBase(array $items): array
+    {
+        if (empty($items)) {
+            return $items;
+        }
+
+        $groupIds = [];
+        foreach ($items as $item) {
+            $groupId = isset($item['button_point_group_id']) ? (int) $item['button_point_group_id'] : 0;
+            if ($groupId > 0) {
+                $groupIds[] = $groupId;
+            }
+        }
+
+        if (empty($groupIds)) {
+            usort($items, static function (array $left, array $right): int {
+                $leftSort = (int) ($left['sort'] ?? 0);
+                $rightSort = (int) ($right['sort'] ?? 0);
+                if ($leftSort !== $rightSort) {
+                    return $leftSort <=> $rightSort;
+                }
+                return (int) ($left['id'] ?? 0) <=> (int) ($right['id'] ?? 0);
+            });
+
+            foreach ($items as $index => &$item) {
+                $item['sort'] = $index;
+            }
+            unset($item);
+
+            return $items;
+        }
+
+        $groupSortMap = Db::name('button_point_group')
+            ->whereIn('id', array_values(array_unique($groupIds)))
+            ->column('sort', 'id');
+
+        foreach ($items as &$item) {
+            $groupId = isset($item['button_point_group_id']) ? (int) $item['button_point_group_id'] : 0;
+            $itemSort = (int) ($item['sort'] ?? 0);
+
+            if ($groupId > 0) {
+                $groupSort = isset($groupSortMap[$groupId]) ? (int) $groupSortMap[$groupId] : 0;
+                $item['_effective_sort'] = $groupSort * self::GROUP_SORT_BASE + $itemSort;
+            } else {
+                $item['_effective_sort'] = $itemSort;
+            }
+        }
+        unset($item);
+
+        usort($items, static function (array $left, array $right): int {
+            $leftSort = (int) ($left['_effective_sort'] ?? 0);
+            $rightSort = (int) ($right['_effective_sort'] ?? 0);
+            if ($leftSort !== $rightSort) {
+                return $leftSort <=> $rightSort;
+            }
+            return (int) ($left['id'] ?? 0) <=> (int) ($right['id'] ?? 0);
+        });
+
+        foreach ($items as $index => &$item) {
+            $item['sort'] = $index;
+            unset($item['_effective_sort']);
+        }
+        unset($item);
+
+        return $items;
+    }
+
     
     public function getProjectCityRoomList()
     {
@@ -324,6 +393,9 @@ class Project
                                 }
                             }
                         }
+                        unset($buttonPoint);
+
+                        $button_point_list = $this->reorderButtonPointListByGroupBase($button_point_list);
 
                         $room['buttonPointList'] = $button_point_list;
                     }
