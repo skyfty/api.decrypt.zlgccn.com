@@ -202,6 +202,10 @@ class ButtonPoint
     {
         $data = [];
 
+        if (array_key_exists('sort', $params)) {
+            $data['sort'] = (int) $params['sort'];
+        }
+
         if (array_key_exists('visible', $params)) {
             $data['visible'] = (int) $params['visible'];
         }
