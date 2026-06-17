@@ -22,6 +22,85 @@ class ProjectController extends BaseController
     private $room_id = 0;
     private $isHome = true;
     private $scale = 100;
+
+    private function reorderButtonPointsByGroupBase(array $items): array
+    {
+        if (empty($items)) {
+            return $items;
+        }
+
+        $groupIds = [];
+        foreach ($items as $item) {
+            $groupId = isset($item['button_point_group_id']) ? (int) $item['button_point_group_id'] : 0;
+            if ($groupId > 0) {
+                $groupIds[] = $groupId;
+            }
+        }
+
+        $groupSortMap = [];
+        if (!empty($groupIds)) {
+            $groupSortMap = \think\facade\Db::name('button_point_group')
+                ->whereIn('id', array_values(array_unique($groupIds)))
+                ->column('sort', 'id');
+        }
+
+        $decorated = [];
+        foreach ($items as $item) {
+            $groupId = isset($item['button_point_group_id']) ? (int) $item['button_point_group_id'] : 0;
+            $itemSort = (int) ($item['sort'] ?? 0);
+            $itemId = (int) ($item['id'] ?? 0);
+
+            if ($groupId > 0) {
+                $groupSort = isset($groupSortMap[$groupId]) ? (int) $groupSortMap[$groupId] : 0;
+                $decorated[] = [
+                    'item' => $item,
+                    'major' => $groupSort,
+                    'type_order' => 1,
+                    'group_id' => $groupId,
+                    'minor' => $itemSort,
+                    'id_sort' => $itemId,
+                ];
+            } else {
+                $decorated[] = [
+                    'item' => $item,
+                    'major' => $itemSort,
+                    'type_order' => 0,
+                    'group_id' => 0,
+                    'minor' => 0,
+                    'id_sort' => $itemId,
+                ];
+            }
+        }
+
+        usort($decorated, static function (array $left, array $right): int {
+            if ($left['major'] !== $right['major']) {
+                return $left['major'] <=> $right['major'];
+            }
+
+            if ($left['type_order'] !== $right['type_order']) {
+                return $left['type_order'] <=> $right['type_order'];
+            }
+
+            if ($left['group_id'] !== $right['group_id']) {
+                return $left['group_id'] <=> $right['group_id'];
+            }
+
+            if ($left['minor'] !== $right['minor']) {
+                return $left['minor'] <=> $right['minor'];
+            }
+
+            return $left['id_sort'] <=> $right['id_sort'];
+        });
+
+        $result = [];
+        foreach ($decorated as $index => $entry) {
+            $entry['item']['sort'] = $index;
+            $result[] = $entry['item'];
+        }
+
+        return $result;
+    }
+
     public function getScaledProjectData()
     {
         $this->project_id = Request::param('project_id');
@@ -191,6 +270,7 @@ class ProjectController extends BaseController
     // 查询按钮点数据
     private function queryButtonPoints($buttonPoints)
     {
+        $processedButtonPoints = [];
         foreach ($buttonPoints as $buttonPoint) {
             // 处理音频列表，添加音频路径
             $audioList = [];
@@ -229,8 +309,11 @@ class ProjectController extends BaseController
                 $buttonPoint['param'] = $param;
             }
             $buttonPoint['localizationText'] = $buttonPoint->localizationText;
+
+            $processedButtonPoints[] = $buttonPoint;
         }
-        return $buttonPoints;
+
+        return $this->reorderButtonPointsByGroupBase($processedButtonPoints);
     }
 
     // 查询提示点数据
