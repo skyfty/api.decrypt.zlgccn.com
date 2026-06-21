@@ -120,6 +120,7 @@ class Project
         $city_list = Db::name('city')
             ->where(['project_id' => $projectId])
             ->field(['id', 'name','preset_room_id','image_id'])
+            ->order('sort', 'asc')
             ->select()
             ->toArray();
 
@@ -195,6 +196,7 @@ class Project
             $city_list = Db::name('city')
                 ->where(['id' => $cityId, 'project_id' => $projectId])
                 ->field(['id', 'name','preset_room_id','image_id'])
+                ->order('sort', 'asc')
                 ->select()
                 ->toArray();
 

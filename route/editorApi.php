@@ -27,6 +27,7 @@ Route::group('v1/editor', function () {
 // 【编辑类 - 排序功能】
 Route::group('v1/editor/sort', function () {
     Route::post('updateRoomSort', 'v1.editor.sort.RoomSort/updateRoomSort');
+    Route::post('updateCitySort', 'v1.editor.sort.CitySort/updateCitySort');
     Route::post('updateButtonPointSort', 'v1.editor.sort.ButtonPointSort/updateButtonPointSort');
     Route::post('updateButtonPointGroupSort', 'v1.editor.sort.ButtonPointGroupSort/updateButtonPointGroupSort');
     Route::post('updateTopLevelEntrySort', 'v1.editor.sort.TopLevelEntrySort/updateTopLevelEntrySort');

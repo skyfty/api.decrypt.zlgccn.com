@@ -33,6 +33,7 @@ class ProjectController
             $city_list = Db::name('city')
                 ->where('project_id', (int)$project['id'])
                 ->field(['id', 'name', 'preset_room_id', 'image_id'])
+                ->order('sort', 'asc')
                 ->select()
                 ->toArray();
 

@@ -14,7 +14,7 @@ class Project extends Model
     // 城市关联
     public function citys()
     {
-        return $this->hasMany(City::class, 'project_id');
+        return $this->hasMany(City::class, 'project_id')->order('sort asc');
     }
     
     // 首页关联关联
