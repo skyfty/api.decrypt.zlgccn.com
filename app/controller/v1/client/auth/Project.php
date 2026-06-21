@@ -138,7 +138,8 @@ class Project
                     'width',
                     'height',
                     'isSave',
-                    'isDestroy'
+                    'isDestroy',
+                    'resetRoomState'
                 ])
                 ->order('sort', 'asc')
                 ->select()
@@ -155,6 +156,8 @@ class Project
                     ->find();
                 $room['isSave'] = (bool) $room['isSave'];
                 $room['isDestroy'] = (bool) $room['isDestroy'];
+                $room['resetRoomState'] = (bool) ($room['resetRoomState'] ?? 0);
+                unset($room['resetRoomState']);
                 unset($room['imageId']);
                 unset($room['safeZoneId']);
             }
@@ -217,7 +220,8 @@ class Project
                             'width',
                             'height',
                             'isSave',
-                            'isDestroy'
+                            'isDestroy',
+                            'resetRoomState'
                         ])
                         ->order('sort', 'asc')
                         ->select()
@@ -235,6 +239,8 @@ class Project
                             ->find();
                         $room['isSave'] = (bool) $room['isSave'];
                         $room['isDestroy'] = (bool) $room['isDestroy'];
+                        $room['resetRoomState'] = (bool) ($room['resetRoomState'] ?? 0);
+                        unset($room['resetRoomState']);
                         unset($room['imageId']);
                         unset($room['safeZoneId']);
 

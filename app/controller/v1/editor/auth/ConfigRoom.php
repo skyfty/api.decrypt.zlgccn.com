@@ -695,10 +695,13 @@ class ConfigRoom
                 'height',
                 'room_type',
                 'isSave',
-                'isDestroy'
+                'isDestroy',
+                'resetRoomState'
             ])
             ->order('sort', 'asc')
             ->find();
+            $room_data['resetRoomState'] = (bool) ($room_data['resetRoomState'] ?? 0);
+            unset($room_data['resetRoomState']);
         
         $button_point_list = Db::name('button_point')
             ->where('room_id', $room_id)
@@ -798,6 +801,7 @@ class ConfigRoom
         $room_type = Request::post('room_type');
         $isSave = Request::post('isSave/d');
         $isDestroy = Request::post('isDestroy/d');
+        $resetRoomState = Request::post('resetRoomState/d', 0);
 
         // 验证请求参数
         if (empty($cityId)) {
@@ -833,6 +837,7 @@ class ConfigRoom
             'room_type' => $room_type,
             'isSave' => $isSave,
             'isDestroy' => $isDestroy,
+            'resetRoomState' => $resetRoomState,
             'create_time' => date('Y-m-d H:i:s'),
             'update_time' => date('Y-m-d H:i:s'),
         ];
