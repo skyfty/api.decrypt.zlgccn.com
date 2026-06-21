@@ -61,8 +61,6 @@ class ProjectController
                     ->toArray();
 
                 foreach ($room_list as $k2 => $room) {
-                    $room_list[$k2]['resetRoomState'] = (bool) ($room['resetRoomState'] ?? 0);
-                    unset($room_list[$k2]['resetRoomState']);
                     $button_point_group_list = Db::name('button_point_group')
                         ->where('room_id', (int)$room['id'])
                         ->order('sort', 'asc')

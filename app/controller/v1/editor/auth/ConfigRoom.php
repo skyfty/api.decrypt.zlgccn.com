@@ -700,9 +700,6 @@ class ConfigRoom
             ])
             ->order('sort', 'asc')
             ->find();
-            $room_data['resetRoomState'] = (bool) ($room_data['resetRoomState'] ?? 0);
-            unset($room_data['resetRoomState']);
-        
         $button_point_list = Db::name('button_point')
             ->where('room_id', $room_id)
             ->order('sort', 'asc')

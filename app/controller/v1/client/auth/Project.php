@@ -157,7 +157,6 @@ class Project
                 $room['isSave'] = (bool) $room['isSave'];
                 $room['isDestroy'] = (bool) $room['isDestroy'];
                 $room['resetRoomState'] = (bool) ($room['resetRoomState'] ?? 0);
-                unset($room['resetRoomState']);
                 unset($room['imageId']);
                 unset($room['safeZoneId']);
             }
@@ -240,7 +239,6 @@ class Project
                         $room['isSave'] = (bool) $room['isSave'];
                         $room['isDestroy'] = (bool) $room['isDestroy'];
                         $room['resetRoomState'] = (bool) ($room['resetRoomState'] ?? 0);
-                        unset($room['resetRoomState']);
                         unset($room['imageId']);
                         unset($room['safeZoneId']);
 
