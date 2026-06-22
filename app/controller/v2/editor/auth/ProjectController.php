@@ -32,7 +32,7 @@ class ProjectController
         foreach ($project_list as &$project) {
             $city_list = Db::name('city')
                 ->where('project_id', (int)$project['id'])
-                ->field(['id', 'name', 'preset_room_id', 'image_id'])
+                ->field(['id', 'name', 'preset_room_id', 'image_id','sort'])
                 ->order('sort', 'asc')
                 ->select()
                 ->toArray();
@@ -56,6 +56,7 @@ class ProjectController
                         'room_type',
                         'isSave',
                         'isDestroy',
+                        'sort',
                         'resetRoomState'
                     ])
                     ->order('sort', 'asc')

@@ -119,7 +119,7 @@ class Project
 
         $city_list = Db::name('city')
             ->where(['project_id' => $projectId])
-            ->field(['id', 'name','preset_room_id','image_id'])
+            ->field(['id', 'name','preset_room_id','image_id','sort'])
             ->order('sort', 'asc')
             ->select()
             ->toArray();
@@ -135,6 +135,7 @@ class Project
                     'name',
                     'imageId',
                     'safeZoneId',
+                    'sort',
                     'width',
                     'height',
                     'isSave',
@@ -220,6 +221,7 @@ class Project
                             'height',
                             'isSave',
                             'isDestroy',
+                            'sort',
                             'resetRoomState'
                         ])
                         ->order('sort', 'asc')
